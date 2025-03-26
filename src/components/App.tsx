@@ -1,6 +1,5 @@
 import Header, { HeaderTop } from "./Header";
 import Sidebar, { SidebarTop } from "./Sidebar";
-import { useActiveId, useJobItem, useJobItems } from "../lib/hooks";
 
 import Background from "./Background";
 import BookmarksButton from "./BookmarksButton";
@@ -13,12 +12,12 @@ import PaginationControls from "./PaginationControls";
 import ResultsCount from "./ResultsCount";
 import SearchForm from "./SearchForm";
 import SortingControls from "./SortingControls";
+import { useJobItems } from "../lib/hooks";
+import { useState } from "react";
 
 function App() {
   const [searchText, setSearchText] = useState("");
   const [isLoading, jobItems] = useJobItems(searchText);
-  const activeId = useActiveId();
-  const jobDetails = useJobItem(activeId);
 
   return (
     <>

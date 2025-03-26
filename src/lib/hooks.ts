@@ -49,6 +49,7 @@ export const useActiveId = () => {
 };
 
 export const useJobItem = (id: number | null) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [jobItem, setJobItem] = useState<JobDetails | null>(null);
 
   useEffect(() => {
@@ -57,14 +58,16 @@ export const useJobItem = (id: number | null) => {
     }
 
     const fetchData = async () => {
+      setIsLoading(true);
       const response = await fetch(`${BASE_API_URL}/${id}`);
       const data = await response.json();
 
       setJobItem(data.jobItem);
+      setIsLoading(false);
     };
 
     fetchData();
   }, [id]);
 
-  return jobItem;
+  return [jobItem, isLoading] as const;
 };
