@@ -1,5 +1,6 @@
 import Header, { HeaderTop } from "./Header";
 import Sidebar, { SidebarTop } from "./Sidebar";
+import { useDebounce, useJobItems } from "../lib/hooks";
 
 import Background from "./Background";
 import BookmarksButton from "./BookmarksButton";
@@ -12,12 +13,13 @@ import PaginationControls from "./PaginationControls";
 import ResultsCount from "./ResultsCount";
 import SearchForm from "./SearchForm";
 import SortingControls from "./SortingControls";
-import { useJobItems } from "../lib/hooks";
 import { useState } from "react";
 
 function App() {
   const [searchText, setSearchText] = useState("");
-  const [isLoading, jobItems] = useJobItems(searchText);
+  const debouncedSearchText = useDebounce(searchText, 250);
+  const { isLoading, jobItemsSliced, totalNumberOfResults } =
+    useJobItems(debouncedSearchText);
 
   return (
     <>
@@ -33,11 +35,11 @@ function App() {
       <Container>
         <Sidebar>
           <SidebarTop>
-            <ResultsCount />
+            <ResultsCount totalNumberOfResults={totalNumberOfResults} />
             <SortingControls />
           </SidebarTop>
 
-          <JobList isLoading={isLoading} jobItems={jobItems} />
+          <JobList isLoading={isLoading} jobItems={jobItemsSliced} />
 
           <PaginationControls />
         </Sidebar>
