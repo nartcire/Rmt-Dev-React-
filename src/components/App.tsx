@@ -13,13 +13,27 @@ import PaginationControls from "./PaginationControls";
 import ResultsCount from "./ResultsCount";
 import SearchForm from "./SearchForm";
 import SortingControls from "./SortingControls";
+import { Toaster } from "react-hot-toast";
 import { useState } from "react";
 
 function App() {
   const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
   const debouncedSearchText = useDebounce(searchText, 250);
-  const { isLoading, jobItemsSliced, totalNumberOfResults } =
-    useJobItems(debouncedSearchText);
+  const { jobItems, isLoading } = useJobItems(debouncedSearchText);
+
+  const handleChangePage = (direction: "next" | "previous") => {
+    if (direction === "next") {
+      setCurrentPage((prev) => prev + 1);
+    } else {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const totalNumberOfResults = jobItems?.length || 0;
+  const totalNumberOfPages = totalNumberOfResults / 7;
+  const jobItemsSliced =
+    jobItems?.slice(currentPage * 7 - 7, currentPage * 7) || [];
 
   return (
     <>
@@ -41,11 +55,16 @@ function App() {
 
           <JobList isLoading={isLoading} jobItems={jobItemsSliced} />
 
-          <PaginationControls />
+          <PaginationControls
+            currentPage={currentPage}
+            onClick={handleChangePage}
+            totalNumberOfPages={totalNumberOfPages}
+          />
         </Sidebar>
         <JobItemContent />
       </Container>
       <Footer />
+      <Toaster position="top-right" />
     </>
   );
 }

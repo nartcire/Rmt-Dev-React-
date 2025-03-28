@@ -2,33 +2,45 @@ import { JobDetails, JobItem } from "./types";
 import { useEffect, useState } from "react";
 
 import { BASE_API_URL } from "./constants";
+import { handleError } from "./utils";
 import { useQuery } from "@tanstack/react-query";
 
+type JobItemsAPIResponse = {
+  jobItems: JobItem[];
+  public: boolean;
+  sorted: boolean;
+};
+
+const fetchJobItems = async (
+  searchText: string
+): Promise<JobItemsAPIResponse> => {
+  const res = await fetch(`${BASE_API_URL}?search=${searchText}`);
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.description);
+  }
+
+  const data = await res.json();
+
+  return data;
+};
+
 export const useJobItems = (searchText: string) => {
-  const [jobItems, setJobItems] = useState<JobItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const totalNumberOfResults = jobItems.length;
-
-  const jobItemsSliced = jobItems.slice(0, 7);
-
-  useEffect(() => {
-    if (!searchText) {
-      return;
+  const { data, isInitialLoading } = useQuery(
+    ["job-items", searchText],
+    () => fetchJobItems(searchText),
+    {
+      staleTime: 1000 * 60 * 60,
+      refetchOnWindowFocus: false,
+      retry: false,
+      enabled: Boolean(searchText),
+      onError: handleError,
     }
+  );
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      const res = await fetch(`${BASE_API_URL}?search=${searchText}`);
-      const data = await res.json();
-
-      setJobItems(data.jobItems);
-      setIsLoading(false);
-    };
-
-    fetchData();
-  }, [searchText]);
-
-  return { isLoading, jobItemsSliced, totalNumberOfResults } as const;
+  console.log(data);
+  return { jobItems: data?.jobItems, isLoading: isInitialLoading } as const;
 };
 
 export const useActiveId = () => {
@@ -76,16 +88,12 @@ export const useJobItem = (id: number | null) => {
       refetchOnWindowFocus: false,
       retry: false,
       enabled: Boolean(id),
-      onError: (error) => {
-        console.log(error);
-      },
+      onError: handleError,
     }
   );
 
   console.log(data);
-  const jobItem = data?.jobItem;
-  const isLoading = isInitialLoading;
-  return { jobItem, isLoading } as const;
+  return { jobItem: data?.jobItem, isLoading: isInitialLoading } as const;
 };
 
 export const useDebounce = <T>(value: T, delay = 500): T => {
