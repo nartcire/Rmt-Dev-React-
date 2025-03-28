@@ -1,7 +1,8 @@
 import { JobDetails, JobItem } from "./types";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { BASE_API_URL } from "./constants";
+import { BookmarksContext } from "../contexts/BookmarksContextProvider";
 import { handleError } from "./utils";
 import { useQuery } from "@tanstack/react-query";
 
@@ -106,4 +107,28 @@ export const useDebounce = <T>(value: T, delay = 500): T => {
   }, [value, delay]);
 
   return debouncedValue;
+};
+
+export const useLocalStorage = <T>(key: string, initialValue: T) => {
+  const [state, setState] = useState<T>(() =>
+    JSON.parse(localStorage.getItem(key) || JSON.stringify(initialValue))
+  );
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(state));
+  }, [state, key]);
+
+  return [state, setState] as const;
+};
+
+export const useBookmarksContext = () => {
+  const context = useContext(BookmarksContext);
+
+  if (!context) {
+    throw new Error(
+      "useBookmarkIcon must be used within a BookmarksContextProvider"
+    );
+  }
+
+  return context;
 };
