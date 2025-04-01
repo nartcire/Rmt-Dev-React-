@@ -1,7 +1,17 @@
+import JobList from "./JobList";
+import { createPortal } from "react-dom";
+import { forwardRef } from "react";
 import { useBookmarksContext } from "../lib/hooks";
 
-export default function BookmarksPopover() {
+const BookmarksPopover = forwardRef<HTMLDivElement>(function (_, ref) {
   const { bookmarkedJobItems, isLoading } = useBookmarksContext();
 
-  return <div className="bookmarks-popover"></div>;
-}
+  return createPortal(
+    <div ref={ref} className="bookmarks-popover">
+      <JobList isLoading={isLoading} jobItems={bookmarkedJobItems} />
+    </div>,
+    document.body
+  );
+});
+
+export default BookmarksPopover;

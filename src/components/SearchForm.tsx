@@ -1,12 +1,9 @@
-type SearchFormProps = {
-  searchText: string;
-  setSearchText: (searchText: string) => void;
-};
+import { useSearchTextContext } from "../lib/hooks";
 
-export default function SearchForm({
-  searchText,
-  setSearchText,
-}: SearchFormProps) {
+export default function SearchForm() {
+  const { searchText, handleChangeSearchText: onChangeSearch } =
+    useSearchTextContext();
+
   return (
     <form
       onSubmit={(e) => {
@@ -20,7 +17,7 @@ export default function SearchForm({
       </button>
 
       <input
-        onChange={(e) => setSearchText(e.target.value)}
+        onChange={(e) => onChangeSearch(e.target.value)}
         value={searchText}
         spellCheck="false"
         type="text"

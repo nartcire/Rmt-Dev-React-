@@ -1,7 +1,8 @@
+import { ActiveIdContext } from "../contexts/ActiveIdContextProvider";
 import { JobItem } from "../lib/types";
 import JobListItem from "./JobListItem";
 import Spinner from "./Spinner";
-import { useActiveId } from "../lib/hooks";
+import { useContext } from "react";
 
 type JobListProps = {
   isLoading: boolean;
@@ -9,7 +10,13 @@ type JobListProps = {
 };
 
 export function JobList({ isLoading, jobItems }: JobListProps) {
-  const activeId = useActiveId();
+  const context = useContext(ActiveIdContext);
+  if (!context) {
+    throw new Error(
+      "JobItemContext component must be used within ActiveIdContextProviders."
+    );
+  }
+  const activeId = context.activeId;
 
   return (
     <ul className="job-list">

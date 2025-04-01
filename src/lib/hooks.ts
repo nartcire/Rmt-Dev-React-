@@ -4,6 +4,8 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 
 import { BASE_API_URL } from "./constants";
 import { BookmarksContext } from "../contexts/BookmarksContextProvider";
+import { JobItemsContext } from "../contexts/JobItemsContextProvider";
+import { SearchTextContext } from "../contexts/SearchTextContextProvider";
 import { handleError } from "./utils";
 
 type JobItemsAPIResponse = {
@@ -64,25 +66,6 @@ export const useJobItems = (ids: number[]) => {
   const isLoading = results.some((result) => result.isLoading);
 
   return { jobItems, isLoading };
-};
-
-export const useActiveId = () => {
-  const [activeId, setActiveId] = useState<number | null>(null);
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      console.log(window.location.hash.slice(1));
-      setActiveId(+window.location.hash.slice(1));
-    };
-
-    handleHashChange();
-
-    window.addEventListener("hashchange", handleHashChange);
-
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
-  return activeId;
 };
 
 type JobItemAPIResponse = {
@@ -150,6 +133,46 @@ export const useBookmarksContext = () => {
     throw new Error(
       "useBookmarkIcon must be used within a BookmarksContextProvider"
     );
+  }
+
+  return context;
+};
+
+export const useOnClickOutside = (
+  refs: React.RefObject<HTMLElement>[],
+  handler: () => void
+) => {
+  useEffect(() => {
+    const callback = (e: MouseEvent) => {
+      if (
+        e.target instanceof HTMLElement &&
+        refs.every((ref) => !ref.current?.contains(e.target as Node))
+      ) {
+        handler();
+      }
+    };
+
+    window.addEventListener("click", callback);
+
+    return () => window.removeEventListener("click", callback);
+  }, [refs, handler]);
+};
+
+export const useSearchTextContext = () => {
+  const context = useContext(SearchTextContext);
+
+  if (!context) {
+    throw new Error("Some error with search text context");
+  }
+
+  return context;
+};
+
+export const useJobItemsContext = () => {
+  const context = useContext(JobItemsContext);
+
+  if (!context) {
+    throw new Error("Some error with search job items context");
   }
 
   return context;

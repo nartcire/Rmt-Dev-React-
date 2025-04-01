@@ -1,14 +1,9 @@
 import { SortBy } from "../lib/types";
+import { useJobItemsContext } from "../lib/hooks";
 
-type SortingControlsProps = {
-  onClick: (newSortBy: SortBy) => void;
-  sortBy: string;
-};
+export default function SortingControls() {
+  const { handleChangeSortBy: onClick, sortBy } = useJobItemsContext();
 
-export default function SortingControls({
-  onClick,
-  sortBy,
-}: SortingControlsProps) {
   return (
     <section className="sorting">
       <i className="fa-solid fa-arrow-down-short-wide"></i>
